@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test'
 
 const key = 'one-more:cravings:v1'
 
-test('one tap persists, celebrates, and can be undone', async ({ page }) => {
+test('one tap persists, celebrates, and can be deleted without toasts', async ({ page }) => {
   await page.goto('/')
   const button = page.getByRole('button', { name: 'I resisted', exact: true })
   await expect(button).toBeEnabled()
@@ -10,6 +10,7 @@ test('one tap persists, celebrates, and can be undone', async ({ page }) => {
   await button.click()
   await expect(page.getByTestId('today-count')).toHaveText('1')
   await expect(page.getByText('You got through this one.')).toBeVisible()
+  await expect(page.locator('.toast')).toHaveCount(0)
   await expect
     .poll(() => page.evaluate((k) => JSON.parse(localStorage.getItem(k)!).length, key))
     .toBe(1)
@@ -19,12 +20,9 @@ test('one tap persists, celebrates, and can be undone', async ({ page }) => {
   await expect(page.getByText('Craving resisted', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: /Delete craving/ }).click()
   await expect(page.getByTestId('total-count')).toHaveText('0')
-  await page.getByRole('button', { name: 'Undo', exact: true }).click()
-  await expect(page.getByTestId('total-count')).toHaveText('1')
-  await button.click()
-  await expect(page.getByTestId('total-count')).toHaveText('2')
-  await page.getByRole('button', { name: 'Undo', exact: true }).click()
-  await expect(page.getByTestId('total-count')).toHaveText('1')
+  await expect(page.locator('.toast')).toHaveCount(0)
+  await page.reload()
+  await expect(page.getByTestId('total-count')).toHaveText('0')
 })
 
 test('history uses local days and syncs across tabs', async ({ page, context }) => {
@@ -75,7 +73,9 @@ test('corrupt history is preserved and storage failures are reported', async ({ 
   await page.goto('/')
   await page.evaluate((k) => localStorage.setItem(k, 'broken-data'), key)
   await page.reload()
-  await expect(page.getByRole('alert').filter({ hasText: 'history could not be read' })).toBeVisible()
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'history could not be read' }),
+  ).toBeVisible()
   await expect(page.getByRole('button', { name: 'I resisted', exact: true })).toBeDisabled()
   expect(await page.evaluate((k) => localStorage.getItem(k), key)).toBe('broken-data')
   await page.evaluate((k) => localStorage.removeItem(k), key)

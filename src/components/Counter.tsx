@@ -2,15 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import {
-  ArrowDown,
-  Check,
-  ChevronDown,
-  Plus,
-  Trash2,
-  Undo2,
-  X,
-} from 'lucide-react'
+import { ArrowDown, Check, ChevronDown, Plus, Trash2 } from 'lucide-react'
 import Celebration from './Celebration'
 import {
   type Craving,
@@ -41,7 +33,7 @@ export default function Counter() {
   const { entries, error: storageError, ready } = useCravings()
   const [now, setNow] = useState<Date | null>(null)
   const [celebration, setCelebration] = useState(0)
-  const [toast, setToast] = useState<{ entry: Craving; removed: boolean } | null>(null)
+  const [showAppreciation, setShowAppreciation] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
   const lastTap = useRef(0)
@@ -65,10 +57,10 @@ export default function Counter() {
   }, [])
 
   useEffect(() => {
-    if (!toast) return
-    const timer = setTimeout(() => setToast(null), 6500)
+    if (!showAppreciation) return
+    const timer = setTimeout(() => setShowAppreciation(false), 6500)
     return () => clearTimeout(timer)
-  }, [toast])
+  }, [celebration, showAppreciation])
 
   const today = now ? entries.filter((entry) => dayKey(new Date(entry.at)) === dayKey(now)) : []
   const groups = groupByDay(entries)
@@ -82,7 +74,7 @@ export default function Counter() {
       lastTap.current = Date.now()
       setNow(new Date())
       setError(null)
-      setToast({ entry, removed: false })
+      setShowAppreciation(true)
       setCelebration((count) => count + 1)
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
         navigator.vibrate?.(35)
@@ -104,19 +96,7 @@ export default function Counter() {
   function remove(entry: Craving) {
     try {
       removeCraving(entry.id)
-      setToast({ entry, removed: true })
-      setError(null)
-    } catch (error) {
-      setError((error as Error).message)
-    }
-  }
-
-  function undo() {
-    if (!toast) return
-    try {
-      if (toast.removed) saveCraving(toast.entry)
-      else removeCraving(toast.entry.id)
-      setToast(null)
+      setShowAppreciation(false)
       setError(null)
     } catch (error) {
       setError((error as Error).message)
@@ -160,7 +140,7 @@ export default function Counter() {
           </div>
 
           <div className="appreciation" aria-live="polite" aria-atomic="true">
-            {celebration > 0 && toast && !toast.removed && (
+            {showAppreciation && (
               <span key={celebration} className="appreciation-message">
                 You got through this one.
               </span>
@@ -272,27 +252,6 @@ export default function Counter() {
           )}
         </section>
       </main>
-
-      {toast && (
-        <div className="toast">
-          <span role="status">
-            <Check size={16} />
-            {toast.removed ? 'Entry removed' : 'Craving recorded'}
-          </span>
-          <button onClick={undo}>
-            <Undo2 size={16} />
-            Undo
-          </button>
-          <button
-            className="toast-close"
-            aria-label="Dismiss notification"
-            title="Dismiss"
-            onClick={() => setToast(null)}
-          >
-            <X size={16} />
-          </button>
-        </div>
-      )}
     </div>
   )
 }
