@@ -48,6 +48,10 @@ export default function Counter() {
   }, [])
 
   useEffect(() => {
+    pickGif.prefetch()
+  }, [pickGif])
+
+  useEffect(() => {
     const refresh = () => setNow(new Date())
     const initial = setTimeout(refresh, 0)
     const timer = setInterval(refresh, 15000)

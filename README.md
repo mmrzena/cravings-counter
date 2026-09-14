@@ -6,7 +6,9 @@ celebration, and adds it to history grouped by local calendar day.
 Each saved tap temporarily replaces the button with a random celebration GIF from
 GifSnap's search results. The button returns after the GIF has displayed for 10 seconds.
 No API key or extra package is needed. The app shuffles batches, fetches additional pages,
-and chooses a random GIF on each tap. No seen-GIF history is stored; repeats are possible.
+and preloads one random GIF when the counter opens, including the image itself.
+Each tap uses that GIF and preloads the next one. No seen-GIF history is stored;
+repeats are possible.
 If the catalog or image cannot load, the craving is still saved.
 
 GIF metadata comes through `/api/gifs`; images load from the provider's media
