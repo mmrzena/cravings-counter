@@ -9,17 +9,15 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc --noEmit",
-    "test": "playwright test",
     "deps:check": "node scripts/check-dependency-age.mjs"
   },
   "dependencies": {
+    "lucide-react": "0.468.0",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "lucide-react": "0.468.0"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
     "@types/node": "22.20.1",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",

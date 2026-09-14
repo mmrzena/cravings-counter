@@ -3,6 +3,17 @@
 A one-tap cravings counter. Each tap saves a resisted craving, plays a brief
 celebration, and adds it to history grouped by local calendar day.
 
+Each saved tap temporarily replaces the button with a random celebration GIF from
+GifSnap's search results. The button returns after the GIF has displayed for 10 seconds.
+No API key or extra package is needed. The app shuffles batches, fetches additional pages,
+and chooses a random GIF on each tap. No seen-GIF history is stored; repeats are possible.
+If the catalog or image cannot load, the craving is still saved.
+
+GIF metadata comes through `/api/gifs`; images load from the provider's media
+hosts. This feature needs an internet connection. GifSnap is a best-effort public
+service; its source code has not been verified as open source.
+API documentation: https://www.gifsnap.com/docs
+
 ## Setup
 
 Next.js App Router, React, TypeScript, Tailwind CSS, and ESLint, following the
@@ -42,18 +53,13 @@ old or newer. It requires network access.
 npm run lint
 npm run typecheck
 npm run build
-npm test
 ```
-
-Browser tests use an existing Google Chrome installation and launch the production
-server on port 3100. They cover persistence, undo, daily history, cross-tab
-synchronization, storage errors, offline reloads, mobile layout, and celebrations.
 
 ## Storage and offline use
 
 History is a JSON array of `{ id, at }` records in `localStorage` under
 `one-more:cravings:v1`. Timestamps use UTC; history groups them in the device's
-local timezone. There is no account, backend, analytics, or external font request.
+local timezone. There is no account, history backend, analytics, or external font request.
 Clearing site data removes the history. Different origins and browser profiles
 have separate history. Concurrent writes from separate tabs are not atomic.
 

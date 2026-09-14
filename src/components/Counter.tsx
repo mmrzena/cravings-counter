@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowDown, Check, ChevronDown, Plus, Trash2 } from 'lucide-react'
 import Celebration from './Celebration'
+import RandomGif from './RandomGif'
+import { createGifPicker } from '@/lib/gifs'
 import {
   type Craving,
   dayKey,
@@ -34,10 +36,16 @@ export default function Counter() {
   const [now, setNow] = useState<Date | null>(null)
   const [celebration, setCelebration] = useState(0)
   const [showAppreciation, setShowAppreciation] = useState(false)
+  const [showGif, setShowGif] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
+  const [pickGif] = useState(createGifPicker)
   const lastTap = useRef(0)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const finishGif = useCallback(() => {
+    setShowGif(false)
+    requestAnimationFrame(() => buttonRef.current?.focus({ preventScroll: true }))
+  }, [])
 
   useEffect(() => {
     const refresh = () => setNow(new Date())
@@ -67,7 +75,7 @@ export default function Counter() {
   const visibleGroups = showAll ? groups : groups.slice(0, 7)
 
   function resist() {
-    if (Date.now() - lastTap.current < 700) return
+    if (showGif || Date.now() - lastTap.current < 700) return
     const entry = { id: crypto.randomUUID(), at: new Date().toISOString() }
     try {
       saveCraving(entry)
@@ -75,6 +83,7 @@ export default function Counter() {
       setNow(new Date())
       setError(null)
       setShowAppreciation(true)
+      setShowGif(true)
       setCelebration((count) => count + 1)
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
         navigator.vibrate?.(35)
@@ -125,7 +134,7 @@ export default function Counter() {
           <h1 id="main-heading">Cravings counter</h1>
 
           <div className="button-stage">
-            <div className="button-orbit">
+            <div className="button-orbit" hidden={showGif}>
               <button
                 ref={buttonRef}
                 className="resist-button"
@@ -136,6 +145,7 @@ export default function Counter() {
                 <Plus size={64} strokeWidth={1.5} aria-hidden="true" />
               </button>
             </div>
+            {showGif && <RandomGif key={celebration} pick={pickGif} onDone={finishGif} />}
             <Celebration count={celebration} />
           </div>
 
