@@ -1,4 +1,4 @@
-const CACHE = 'one-more-v8'
+const CACHE = 'one-more-v9'
 const SHELL = ['/', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {

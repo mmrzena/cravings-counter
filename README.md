@@ -3,11 +3,15 @@
 A one-tap cravings counter. Each tap saves a resisted craving, plays a brief
 celebration, and adds it to history grouped by local calendar day.
 
-Each saved tap temporarily replaces the button with a random celebration GIF from
-GifSnap's search results. The button returns after the GIF has displayed for 10 seconds.
+Each saved tap temporarily replaces the button with a random GIF from
+GifSnap's general trending feed, with no topic or holiday filters.
+The button returns after the GIF has displayed for 10 seconds.
 No API key or extra package is needed. The app shuffles batches, fetches additional pages,
-and preloads one random GIF when the counter opens, including the image itself.
-Each tap uses that GIF and preloads the next one. No seen-GIF history is stored;
+and preloads one random GIF as soon as the counter opens or its window/tab becomes
+visible or focused, including the image itself. Image loading starts before a tap.
+Each tap displays the exact preloaded image element and preloads the next one.
+Broken or slow images are skipped (up to three attempts); returning to the app or
+reconnecting retries a failed prefetch. No seen-GIF history is stored;
 repeats are possible.
 If the catalog or image cannot load, the craving is still saved.
 

@@ -48,7 +48,21 @@ export default function Counter() {
   }, [])
 
   useEffect(() => {
-    pickGif.prefetch()
+    const preload = () => {
+      if (document.visibilityState === 'visible') pickGif.prefetch()
+    }
+    preload()
+    window.addEventListener('online', preload)
+    window.addEventListener('focus', preload)
+    window.addEventListener('pageshow', preload)
+    document.addEventListener('visibilitychange', preload)
+    return () => {
+      window.removeEventListener('online', preload)
+      window.removeEventListener('focus', preload)
+      window.removeEventListener('pageshow', preload)
+      document.removeEventListener('visibilitychange', preload)
+      pickGif.dispose()
+    }
   }, [pickGif])
 
   useEffect(() => {

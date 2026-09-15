@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const response = await fetch(
-      `https://gifsnap.com/api/v1/gifs/search?q=celebration&page=${page}&limit=25`,
+      `https://gifsnap.com/api/v1/gifs/trending?page=${page}&limit=25`,
       {
         cache: 'no-store',
         signal: AbortSignal.timeout(8000),
@@ -20,7 +20,13 @@ export async function GET(request: NextRequest) {
     if (!Array.isArray(result.data)) throw new Error('Invalid GIF response')
     const gifs: Gif[] = result.data.flatMap((item: Record<string, unknown>) => {
       if (typeof item.id !== 'string' || typeof item.url !== 'string') return []
-      const url = new URL(item.url)
+      const title = typeof item.title === 'string' ? item.title : 'Random GIF'
+      let url: URL
+      try {
+        url = new URL(item.url)
+      } catch {
+        return []
+      }
       if (url.protocol !== 'https:') return []
       // The catalog also contains videos; only return browser image formats.
       if (/\.(mp4|webm)(?:$|\?)/i.test(item.url)) return []
@@ -28,7 +34,7 @@ export async function GET(request: NextRequest) {
         {
           id: item.id,
           url: item.url,
-          title: typeof item.title === 'string' ? item.title : 'Random GIF',
+          title,
         },
       ]
     })
